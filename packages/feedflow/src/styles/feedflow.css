@@ -1,0 +1,95 @@
+/**
+ * FeedFlow — mobile vertical snap (recommended with FeedFlowRoot + section children).
+ * Import: import "@escarlet/feedflow/styles.css"
+ */
+
+@media (max-width: 767px) {
+  html:has(main[data-feedflow]) {
+    --feedflow-panel-h: 100vh;
+    --feedflow-panel-h: 100svh;
+    --feedflow-panel-h: 100dvh;
+    height: 100%;
+    overflow: hidden;
+    scroll-snap-type: none;
+    scroll-behavior: auto !important;
+  }
+
+  html:has(main[data-feedflow]) body {
+    height: 100%;
+    min-height: 0 !important;
+    max-height: 100%;
+    overflow-x: hidden;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-y: none;
+    scroll-snap-type: y mandatory;
+    scroll-behavior: auto;
+    scroll-padding-top: 0;
+    scroll-padding-bottom: 0;
+    overflow-anchor: none;
+  }
+
+  html:has(main[data-feedflow]) body > div,
+  html:has(main[data-feedflow]) body > div > div {
+    min-height: 0 !important;
+    height: auto !important;
+    overflow: visible !important;
+  }
+
+  html:has(main[data-feedflow]) main[data-feedflow] {
+    position: relative;
+    display: block;
+    height: auto;
+    overflow: visible;
+  }
+
+  html:has(main[data-feedflow]) main[data-feedflow] > section {
+    box-sizing: border-box;
+    height: var(--feedflow-panel-h, 100dvh);
+    min-height: var(--feedflow-panel-h, 100dvh);
+    max-height: var(--feedflow-panel-h, 100dvh);
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
+  }
+
+  html:has(main[data-feedflow]) main[data-feedflow] > section[data-feedflow-tall] {
+    height: auto;
+    max-height: none;
+    min-height: var(--feedflow-panel-h, 100dvh);
+    scroll-snap-stop: normal;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+    scroll-snap-type: none;
+  }
+
+  html:has(main[data-feedflow]) body {
+    scroll-snap-type: y proximity;
+  }
+}
+
+/* Standalone container mode (MobileScrollContainer without body snap) */
+.feedflow-scroll-container {
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+  scroll-snap-type: y mandatory;
+  scroll-behavior: auto;
+}
+
+.feedflow-full-section {
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+  min-height: 100svh;
+  box-sizing: border-box;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .feedflow-scroll-container {
+    scroll-snap-type: y proximity;
+  }
+}
