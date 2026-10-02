@@ -1,8 +1,10 @@
 "use client";
 
 import { useEffect } from "react";
+import { feedSnapIndex, feedSnapTop } from "../lib/snapAnchor";
 
 const MOBILE_MQ = "(max-width: 767px)";
+const IDLE_MS = 120;
 
 function measureChromeInsets(root: HTMLElement) {
   const header = document.querySelector("header");
@@ -34,42 +36,141 @@ function observeChromeInsets(root: HTMLElement) {
   return ro;
 }
 
-/** Syncs panel height and header/CTA insets for mobile snap (use inside FeedFlowRoot). */
+/** Syncs panel height and re-anchors the visible section after the gesture ends. */
 export function useFeedFlowViewport(enabled = true) {
   useEffect(() => {
     if (!enabled) return;
 
     const mq = window.matchMedia(MOBILE_MQ);
     const root = document.documentElement;
+    let prevH = 0;
+    let touching = 0;
+    let pendingIndex: number | null = null;
+    let pendingH = 0;
+    let idleTimer = 0;
+    let armed = false;
+    let chromeRo: ResizeObserver | null = null;
 
-    const sync = () => {
-      if (!mq.matches) {
-        root.style.removeProperty("--feedflow-panel-h");
-        root.style.removeProperty("--feedflow-header-inset");
-        root.style.removeProperty("--feedflow-footer-inset");
-        return;
-      }
-
-      const h = window.visualViewport?.height ?? window.innerHeight;
-      root.style.setProperty("--feedflow-panel-h", `${Math.round(h)}px`);
-      measureChromeInsets(root);
-    };
-
-    sync();
-    mq.addEventListener("change", sync);
-    window.addEventListener("resize", sync, { passive: true });
-    window.visualViewport?.addEventListener("resize", sync);
-
-    const chromeRo = observeChromeInsets(root);
-
-    return () => {
-      mq.removeEventListener("change", sync);
-      window.removeEventListener("resize", sync);
-      window.visualViewport?.removeEventListener("resize", sync);
-      chromeRo?.disconnect();
+    const clearVars = () => {
       root.style.removeProperty("--feedflow-panel-h");
       root.style.removeProperty("--feedflow-header-inset");
       root.style.removeProperty("--feedflow-footer-inset");
+      root.style.removeProperty("--feedflow-vv-top");
+    };
+
+    const applyOffset = () => {
+      const top = window.visualViewport?.offsetTop ?? 0;
+      root.style.setProperty("--feedflow-vv-top", `${Math.round(top)}px`);
+    };
+
+    const flush = () => {
+      if (touching || pendingIndex === null) return;
+      const top = feedSnapTop(pendingIndex, pendingH);
+      pendingIndex = null;
+      window.clearTimeout(idleTimer);
+      if (Math.abs(window.scrollY - top) < 1) return;
+      window.scrollTo({ top, left: 0, behavior: "auto" });
+    };
+
+    const schedule = () => {
+      window.clearTimeout(idleTimer);
+      if (touching || pendingIndex === null) return;
+      const y = window.scrollY;
+      idleTimer = window.setTimeout(() => {
+        if (touching || pendingIndex === null) return;
+        if (window.scrollY !== y) return;
+        flush();
+      }, IDLE_MS);
+    };
+
+    const onScrollEnd = () => {
+      flush();
+    };
+
+    const onScroll = () => {
+      if (pendingIndex === null) return;
+      schedule();
+    };
+
+    const onDown = () => {
+      touching += 1;
+    };
+
+    const onUp = () => {
+      touching = Math.max(0, touching - 1);
+      if (!touching) schedule();
+    };
+
+    const syncHeight = () => {
+      const h = Math.round(window.visualViewport?.height ?? window.innerHeight);
+      applyOffset();
+      measureChromeInsets(root);
+      if (prevH > 0 && h !== prevH) {
+        pendingIndex = feedSnapIndex(window.scrollY, prevH);
+        pendingH = h;
+        prevH = h;
+        root.style.setProperty("--feedflow-panel-h", `${h}px`);
+        schedule();
+        return;
+      }
+      prevH = h || prevH;
+      if (h > 0) root.style.setProperty("--feedflow-panel-h", `${h}px`);
+    };
+
+    const onVvScroll = () => {
+      if (!mq.matches) return;
+      applyOffset();
+      measureChromeInsets(root);
+    };
+
+    const arm = () => {
+      if (armed) return;
+      armed = true;
+      prevH = 0;
+      pendingIndex = null;
+      window.addEventListener("resize", syncHeight, { passive: true });
+      window.visualViewport?.addEventListener("resize", syncHeight);
+      window.visualViewport?.addEventListener("scroll", onVvScroll);
+      window.addEventListener("scrollend", onScrollEnd);
+      window.addEventListener("scroll", onScroll, { passive: true });
+      window.addEventListener("pointerdown", onDown, true);
+      window.addEventListener("pointerup", onUp, true);
+      window.addEventListener("pointercancel", onUp, true);
+      chromeRo = observeChromeInsets(root);
+      syncHeight();
+    };
+
+    const disarm = () => {
+      if (!armed) return;
+      armed = false;
+      window.clearTimeout(idleTimer);
+      pendingIndex = null;
+      prevH = 0;
+      touching = 0;
+      window.removeEventListener("resize", syncHeight);
+      window.visualViewport?.removeEventListener("resize", syncHeight);
+      window.visualViewport?.removeEventListener("scroll", onVvScroll);
+      window.removeEventListener("scrollend", onScrollEnd);
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("pointerdown", onDown, true);
+      window.removeEventListener("pointerup", onUp, true);
+      window.removeEventListener("pointercancel", onUp, true);
+      chromeRo?.disconnect();
+      chromeRo = null;
+      clearVars();
+    };
+
+    const onMq = () => {
+      if (mq.matches) arm();
+      else disarm();
+    };
+
+    onMq();
+    mq.addEventListener("change", onMq);
+
+    return () => {
+      mq.removeEventListener("change", onMq);
+      disarm();
     };
   }, [enabled]);
 }

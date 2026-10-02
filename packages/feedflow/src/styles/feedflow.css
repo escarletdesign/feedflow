@@ -1,32 +1,26 @@
 /**
- * FeedFlow — mobile vertical snap (recommended with FeedFlowRoot + section children).
+ * FeedFlow — document scroll snap on mobile (FeedFlowRoot).
  * Import: import "@escarlet/feedflow/styles.css"
  */
 
 @media (max-width: 767px) {
   html:has(main[data-feedflow]) {
-    --feedflow-panel-h: 100vh;
     --feedflow-panel-h: 100svh;
     --feedflow-panel-h: 100dvh;
-    height: 100%;
-    overflow: hidden;
-    scroll-snap-type: none;
-    scroll-behavior: auto !important;
-  }
-
-  html:has(main[data-feedflow]) body {
-    height: 100%;
-    min-height: 0 !important;
-    max-height: 100%;
-    overflow-x: hidden;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-    overscroll-behavior-y: none;
     scroll-snap-type: y mandatory;
-    scroll-behavior: auto;
+    scroll-behavior: auto !important;
     scroll-padding-top: 0;
     scroll-padding-bottom: 0;
     overflow-anchor: none;
+    overscroll-behavior-y: none;
+  }
+
+  html:has(main[data-feedflow]) body {
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow: visible !important;
+    scroll-snap-type: none !important;
   }
 
   html:has(main[data-feedflow]) body > div,
@@ -43,16 +37,22 @@
     overflow: visible;
   }
 
-  html:has(main[data-feedflow]) main[data-feedflow] > section {
+  html:has(main[data-feedflow]) main[data-feedflow] section {
     box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
     height: var(--feedflow-panel-h, 100dvh);
     min-height: var(--feedflow-panel-h, 100dvh);
     max-height: var(--feedflow-panel-h, 100dvh);
+    overflow: visible;
     scroll-snap-align: start;
     scroll-snap-stop: always;
+    padding-top: var(--feedflow-header-inset, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
   }
 
-  html:has(main[data-feedflow]) main[data-feedflow] > section[data-feedflow-tall] {
+  html:has(main[data-feedflow]) main[data-feedflow] section[data-feedflow-tall] {
     height: auto;
     max-height: none;
     min-height: var(--feedflow-panel-h, 100dvh);
@@ -60,18 +60,59 @@
   }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  html {
+@media (max-width: 767px) and (prefers-reduced-motion: reduce) {
+  html:has(main[data-feedflow]) {
     scroll-behavior: auto;
-    scroll-snap-type: none;
-  }
-
-  html:has(main[data-feedflow]) body {
     scroll-snap-type: y proximity;
   }
 }
 
-/* Standalone container mode (MobileScrollContainer without body snap) */
+@media (min-width: 768px) {
+  html:has(main[data-feedflow]) {
+    scroll-snap-type: none;
+  }
+
+  [data-feedflow-join] {
+    display: contents;
+  }
+}
+
+.feedflow-rail {
+  display: flex;
+  gap: 1rem;
+  overflow-x: auto;
+  overflow-y: clip;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+}
+
+.feedflow-rail::-webkit-scrollbar {
+  display: none;
+}
+
+.feedflow-rail > * {
+  flex: 0 0 86%;
+  align-self: stretch;
+  height: auto;
+  display: flex;
+  flex-direction: column;
+  scroll-snap-align: none center;
+}
+
+.feedflow-rail-body {
+  flex: 1;
+}
+
+.feedflow-rail-plain {
+  background: var(--feedflow-rail-tone, var(--feedflow-accent, #e4ddd2));
+  background: linear-gradient(
+    165deg,
+    var(--feedflow-rail-tone, var(--feedflow-accent, #e4ddd2)),
+    color-mix(in srgb, var(--feedflow-rail-tone, var(--feedflow-accent, #e4ddd2)) 45%, white)
+  );
+}
+
+/* Opt-in embedded scroller. The page feed scrolls the document, not this. */
 .feedflow-scroll-container {
   overflow-y: auto;
   overflow-x: hidden;
@@ -82,9 +123,6 @@
 }
 
 .feedflow-full-section {
-  scroll-snap-align: start;
-  scroll-snap-stop: always;
-  min-height: 100svh;
   box-sizing: border-box;
 }
 

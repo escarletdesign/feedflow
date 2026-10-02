@@ -7,7 +7,6 @@ import {
   FeedFlowRoot,
   IntrigueSection,
   MobileScrollContainer,
-  MobileStickyCTA,
   ProblemSection,
   ProcessSection,
   SolutionSection,
@@ -22,13 +21,14 @@ const CASES = [
 export default function DemoPage() {
   return (
     <>
-      <header className="fixed inset-x-0 top-0 z-40 border-b border-black/10 bg-[var(--feedflow-bg)]/90 px-4 py-3 backdrop-blur md:hidden">
+      <header
+        className="fixed inset-x-0 z-40 border-b border-black/10 bg-[var(--feedflow-bg)]/90 px-4 py-3 backdrop-blur md:hidden"
+        style={{ top: "var(--feedflow-vv-top, 0px)" }}
+      >
         <p className="text-center text-xs font-semibold tracking-wide text-[var(--feedflow-dark)]">
           FEEDFLOW DEMO
         </p>
       </header>
-
-      <MobileStickyCTA label="Hablemos de tu proyecto" href="#contacto" />
 
       <FeedFlowRoot>
         <MobileScrollContainer>

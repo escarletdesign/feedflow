@@ -23,6 +23,7 @@
   "scripts": {
     "build": "tsup && mkdir -p dist/styles && cp src/styles/feedflow.css dist/styles/feedflow.css",
     "typecheck": "tsc --noEmit",
+    "check": "node --experimental-strip-types src/lib/snapAnchor.check.ts",
     "lint": "tsc --noEmit"
   },
   "dependencies": {

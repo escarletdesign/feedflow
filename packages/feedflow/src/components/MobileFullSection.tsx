@@ -10,13 +10,12 @@ export type MobileFullSectionProps = {
   className?: string;
   id?: string;
   tone?: MobileFullSectionTone;
-  /** Fixed 100svh reel panel (default). Set false for tall scrollable sections. */
+  /** One viewport panel (default). Set false for a section taller than one screen. */
   reel?: boolean;
   minHeightClassName?: string;
 };
 
-export const MOBILE_FULL_SECTION_CLASS =
-  "min-h-[100svh] h-[100svh] shrink-0 box-border";
+export const MOBILE_FULL_SECTION_CLASS = "shrink-0 box-border";
 
 const toneClass: Record<MobileFullSectionTone, string> = {
   default: "bg-[var(--feedflow-bg,transparent)]",
@@ -36,16 +35,14 @@ export function MobileFullSection({
   reel = true,
   minHeightClassName,
 }: MobileFullSectionProps) {
-  const heightClass = minHeightClassName ?? (reel ? MOBILE_FULL_SECTION_CLASS : "min-h-[100svh]");
-
   return (
     <section
       id={id}
       data-feedflow-tall={reel ? undefined : ""}
       className={cn(
-        "relative flex w-full flex-col justify-center px-5 py-14 sm:px-6",
+        "relative flex w-full flex-col justify-center px-5 sm:px-6 md:py-14",
         "max-md:snap-start max-md:snap-always feedflow-full-section",
-        heightClass,
+        minHeightClassName ?? MOBILE_FULL_SECTION_CLASS,
         toneClass[tone],
         className,
       )}

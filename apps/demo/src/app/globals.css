@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @import "@escarlet/feedflow/styles.css";
+@source "../../../../packages/feedflow/src";
 
 :root {
   --feedflow-bg: #faf9f6;

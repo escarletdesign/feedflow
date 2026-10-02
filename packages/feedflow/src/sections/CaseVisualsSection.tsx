@@ -1,8 +1,16 @@
 "use client";
 
-import type { ReactNode } from "react";
+import type { CSSProperties, ReactNode } from "react";
+import type { MobileFullSectionTone } from "../components/MobileFullSection";
 import { MobileStorySection, type MobileStorySectionProps } from "../components/MobileStorySection";
 import { cn } from "../lib/cn";
+
+const RAIL_TONE: Record<MobileFullSectionTone, string> = {
+  default: "var(--feedflow-bg, #faf9f6)",
+  muted: "var(--feedflow-muted, #f3f4f6)",
+  dark: "var(--feedflow-dark, #111)",
+  accent: "var(--feedflow-accent, #e4ddd2)",
+};
 
 export type CaseVisualsSectionProps = MobileStorySectionProps & {
   title?: string;
@@ -22,27 +30,26 @@ export function CaseVisualsSection({
       title={title}
       align="start"
       tone={tone}
-      reel={false}
       {...rest}
     >
       <div
-        className={cn(
-          "flex gap-4 overflow-x-auto pb-2",
-          "snap-x snap-mandatory scrollbar-hide",
-          "[scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
-        )}
+        className="feedflow-rail"
+        style={{ "--feedflow-rail-tone": RAIL_TONE[tone] } as CSSProperties}
       >
         {cases.map((item) => (
           <article
             key={item.id}
-            className="min-w-[72%] shrink-0 snap-start rounded-2xl border border-black/10 bg-white/80 p-4 shadow-sm"
+            className={cn(
+              "rounded-2xl border border-black/10 p-4 shadow-sm",
+              item.image ? "bg-white/80" : "feedflow-rail-plain",
+            )}
           >
             {item.image ? (
               <div className="mb-3 aspect-[4/3] overflow-hidden rounded-xl bg-black/5">
                 {item.image}
               </div>
             ) : null}
-            <p className="text-sm font-medium">{item.label}</p>
+            <p className="feedflow-rail-body text-sm font-medium">{item.label}</p>
           </article>
         ))}
       </div>

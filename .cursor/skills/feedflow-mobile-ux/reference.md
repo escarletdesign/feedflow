@@ -1,5 +1,7 @@
 # FeedFlow UX Framework — Especificación completa
 
+> Las reglas de campo de [SKILL.md](SKILL.md) pisan este documento cuando chocan. En particular: el snap va en `html` (scroll del documento), no en un contenedor con `overflow-y: scroll`; el alto real es `100dvh` o `visualViewport`, con `100svh` solo de reserva, no `100vh`.
+
 > Extraído de *Versión móvil Umbral.pdf* (FeedFlow UX Framework: Specifications).
 
 ## Contexto y propósito

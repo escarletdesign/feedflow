@@ -66,7 +66,7 @@ pnpm add @escarlet/feedflow framer-motion
 @import "@escarlet/feedflow/styles.css";
 ```
 
-El CSS aplica scroll snap en `body` bajo `max-width: 767px` para `main[data-feedflow]`, con variables `--feedflow-panel-h`, `--feedflow-header-inset`, `--feedflow-footer-inset`.
+El CSS aplica scroll snap en `html` bajo `max-width: 767px` para `main[data-feedflow]`, con variables `--feedflow-panel-h`, `--feedflow-header-inset`, `--feedflow-vv-top`.
 
 ### 3. Página
 
@@ -77,7 +77,6 @@ import "@escarlet/feedflow/styles.css"; // o en globals.css
 import {
   FeedFlowRoot,
   MobileScrollContainer,
-  MobileStickyCTA,
   IntrigueSection,
   CTASection,
   // … resto de secciones
@@ -85,16 +84,13 @@ import {
 
 export default function MobileLanding() {
   return (
-    <>
-      <MobileStickyCTA label="Contacto" href="#contacto" />
-      <FeedFlowRoot smoothScroll={false}>
-        <MobileScrollContainer>
-          <IntrigueSection title="Tu titular" />
-          {/* arco narrativo completo */}
-          <CTASection title="¿Empezamos?" buttonLabel="Hablemos" buttonHref="#contacto" />
-        </MobileScrollContainer>
-      </FeedFlowRoot>
-    </>
+    <FeedFlowRoot smoothScroll={false}>
+      <MobileScrollContainer>
+        <IntrigueSection title="Tu titular" />
+        {/* arco narrativo completo */}
+        <CTASection title="¿Empezamos?" buttonLabel="Hablemos" buttonHref="#contacto" />
+      </MobileScrollContainer>
+    </FeedFlowRoot>
   );
 }
 ```
